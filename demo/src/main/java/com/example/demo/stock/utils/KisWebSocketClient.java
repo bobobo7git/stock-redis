@@ -1,11 +1,9 @@
 package com.example.demo.stock.utils;
 
-import com.example.demo.stock.dto.KisWebSocketHeaderDto;
-import com.example.demo.stock.dto.KisWebSocketInputDto;
-import com.example.demo.stock.dto.KisWebSocketSubMsg;
-import com.example.demo.stock.dto.StockDto;
+import com.example.demo.stock.dto.*;
 import com.example.demo.stock.entity.Stock;
 import com.example.demo.stock.repository.StockRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.websocket.*;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +23,7 @@ public class KisWebSocketClient {
     private final KisOAuthClient authClient;
     private final StockRepository stockRepository;
     private final ObjectMapper objectMapper;
+    private RemoteEndpoint.Basic remote;
 
     public boolean isConnected() {
         return session != null && session.isOpen();
@@ -38,6 +37,7 @@ public class KisWebSocketClient {
     public void onOpen(Session session) {
         log.info("kis websocket session opened");
         this.session = session;
+        remote = session.getBasicRemote();
 
         String approvalKey = authClient.getWebSocketKey();
         List<StockDto> stocks = stockRepository.findAllAsDto();
@@ -47,6 +47,14 @@ public class KisWebSocketClient {
                 .trType("1")
                 .contentType("utf-8")
                 .build();
+
+        for (StockDto stockDto: stocks) {
+            try {
+                subscribe(headerDto, stockDto.getStockCode());
+            } catch (Exception e) {
+                log.info("subscribe {} fail {}", stockDto.getStockCode(), e.getMessage());
+            }
+        }
     }
     @OnMessage
     public void onMessage(String message) {
@@ -57,8 +65,22 @@ public class KisWebSocketClient {
         this.session = null;
     }
 
-    private void subscribe(Stock stock) {
-        String approvalKey = authClient.getWebSocketKey();
+    private void subscribe(KisWebSocketHeaderDto headerDto, String stockCode) throws Exception {
+        KisWebSocketInputDto inputDto = KisWebSocketInputDto.builder()
+                .trId("H0STCNT0")
+                .trKey(stockCode)
+                .build();
+        KisWebSocketBodyDto bodyDto = KisWebSocketBodyDto.builder()
+                .input(inputDto)
+                .build();
 
+        KisWebSocketSubMsg subMsg = KisWebSocketSubMsg.builder()
+                .header(headerDto)
+                .body(bodyDto)
+                .build();
+
+        String jsonString = objectMapper.writeValueAsString(subMsg);
+        remote.sendText(jsonString);
+        log.info("subscribe {}", stockCode);
     }
 }
