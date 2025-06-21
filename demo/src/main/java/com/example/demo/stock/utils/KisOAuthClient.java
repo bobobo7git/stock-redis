@@ -1,7 +1,8 @@
-package com.example.demo.stock.service;
+package com.example.demo.stock.utils;
 
 import com.example.demo.stock.dto.KisWebSocketKeyRequest;
 import com.example.demo.stock.dto.KisWebSocketResponse;
+import jakarta.websocket.ClientEndpoint;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@ClientEndpoint
 public class KisOAuthClient {
     private String approvalKey;
     private final WebClient webClient;
@@ -38,4 +40,5 @@ public class KisOAuthClient {
 
         return approvalKey = response.getApprovalKey();
     }
+
 }

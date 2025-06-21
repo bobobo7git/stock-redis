@@ -1,6 +1,6 @@
 package com.example.demo.stock.controller;
 
-import com.example.demo.stock.service.KisOAuthClient;
+import com.example.demo.stock.utils.KisOAuthClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
