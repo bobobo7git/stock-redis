@@ -1,5 +1,11 @@
 package com.example.demo.stock.utils;
 
+import com.example.demo.stock.dto.KisWebSocketHeaderDto;
+import com.example.demo.stock.dto.KisWebSocketInputDto;
+import com.example.demo.stock.dto.KisWebSocketSubMsg;
+import com.example.demo.stock.dto.StockDto;
+import com.example.demo.stock.entity.Stock;
+import com.example.demo.stock.repository.StockRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.websocket.*;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
+import java.util.List;
 
 @ClientEndpoint
 @Component
@@ -15,8 +22,10 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class KisWebSocketClient {
     private Session session;
-    private KisOAuthClient authClient;
-    private ObjectMapper objectMapper;
+    private final KisOAuthClient authClient;
+    private final StockRepository stockRepository;
+    private final ObjectMapper objectMapper;
+
     public boolean isConnected() {
         return session != null && session.isOpen();
     }
@@ -29,6 +38,15 @@ public class KisWebSocketClient {
     public void onOpen(Session session) {
         log.info("kis websocket session opened");
         this.session = session;
+
+        String approvalKey = authClient.getWebSocketKey();
+        List<StockDto> stocks = stockRepository.findAllAsDto();
+        KisWebSocketHeaderDto headerDto = KisWebSocketHeaderDto.builder()
+                .approvalKey(approvalKey)
+                .custtype("P")
+                .trType("1")
+                .contentType("utf-8")
+                .build();
     }
     @OnMessage
     public void onMessage(String message) {
@@ -38,7 +56,9 @@ public class KisWebSocketClient {
     public void onClose(Session session) {
         this.session = null;
     }
-    private void subscribe(String code) {
+
+    private void subscribe(Stock stock) {
+        String approvalKey = authClient.getWebSocketKey();
 
     }
 }

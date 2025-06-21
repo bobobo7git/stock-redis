@@ -1,5 +1,6 @@
 package com.example.demo.stock.service;
 
+import com.example.demo.stock.dto.StockDto;
 import com.example.demo.stock.entity.Stock;
 import com.example.demo.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ import java.util.List;
 public class StockServiceImpl implements StockService {
     private final StockRepository stockRepository;
     @Override
-    public List<Stock> getAllStocks() {
-        return stockRepository.findAll();
+    public List<StockDto> getAllStocks() {
+        return stockRepository.findAllAsDto();
     }
 }

@@ -1,7 +1,11 @@
 package com.example.demo.stock.dto;
 
-import lombok.Data;
-@Data
+import lombok.*;
+
+@Builder
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class KisWebSocketBodyDto {
     private KisWebSocketInputDto input;
 }

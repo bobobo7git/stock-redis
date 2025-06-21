@@ -1,5 +1,6 @@
 package com.example.demo.stock.controller;
 
+import com.example.demo.stock.dto.StockDto;
 import com.example.demo.stock.entity.Stock;
 import com.example.demo.stock.service.StockService;
 import com.example.demo.stock.utils.KisOAuthClient;
@@ -21,7 +22,7 @@ public class StockController {
     }
 
     @GetMapping("/stocks")
-    public List<Stock> all() {
+    public List<StockDto> all() {
         return stockService.getAllStocks();
     }
 }
